@@ -22,6 +22,8 @@ import co.elastic.otel.dynamicconfig.BlockableLogRecordExporter;
 import co.elastic.otel.dynamicconfig.BlockableMetricExporter;
 import co.elastic.otel.dynamicconfig.BlockableSpanExporter;
 import co.elastic.otel.dynamicconfig.CentralConfig;
+import co.elastic.otel.dynamicconfig.DynamicConfiguration;
+import co.elastic.otel.dynamicconfig.sampler.ConsistentSampler;
 import co.elastic.otel.logging.AgentLog;
 import com.google.auto.service.AutoService;
 import io.opentelemetry.api.common.AttributeKey;
@@ -74,6 +76,8 @@ public class ElasticAutoConfigurationCustomizerProvider
         (providerBuilder, properties) -> {
           CentralConfig.init(providerBuilder, properties);
           AgentLog.addSpanLoggingIfRequired(providerBuilder, properties);
+          providerBuilder.setSampler(
+              ConsistentSampler.parentBased(DynamicConfiguration.setSamplerRatio(properties)));
           return providerBuilder;
         });
   }

@@ -20,7 +20,10 @@ package co.elastic.otel.dynamicconfig;
 
 import static co.elastic.otel.dynamicconfig.DynamicInstrumentation.setProviderTracerConfigurator;
 
+import co.elastic.otel.dynamicconfig.sampler.ConsistentSampler;
+import co.elastic.otel.dynamicconfig.sampler.ConsistentThresholdSampler;
 import io.opentelemetry.api.GlobalOpenTelemetry;
+import io.opentelemetry.sdk.autoconfigure.spi.ConfigProperties;
 import io.opentelemetry.sdk.common.InstrumentationScopeInfo;
 import io.opentelemetry.sdk.internal.ScopeConfigurator;
 import io.opentelemetry.sdk.trace.internal.TracerConfig;
@@ -39,9 +42,26 @@ public class DynamicConfiguration {
       INSTRUMENTATION_NAME_PREPEND + ALL_INSTRUMENTATION;
   private static final DynamicConfiguration INSTANCE = new DynamicConfiguration();
   private static final Logger logger = Logger.getLogger(DynamicConfiguration.class.getName());
+  private static final ConsistentThresholdSampler SAMPLER =
+      (ConsistentThresholdSampler) ConsistentSampler.probabilityBased(1.0);
+  ;
 
   public static DynamicConfiguration getInstance() {
     return INSTANCE;
+  }
+
+  public static ConsistentThresholdSampler setSamplerRatio(ConfigProperties properties) {
+    double traceidratio = 1.0;
+    if ("traceidratio".equals(properties.getString("otel.traces.sampler"))) {
+      traceidratio = properties.getDouble("otel.traces.sampler.arg", 1.0);
+    }
+    setSamplerRatio(traceidratio);
+    return SAMPLER;
+  }
+
+  public static void setSamplerRatio(double traceidratio) {
+    logger.info("B applying " + traceidratio + "to sampler");
+    SAMPLER.setSamplingProbability(traceidratio);
   }
 
   public static final String DISABLE_SEND_OPTION = "elastic.otel.java.experimental.disable_send";

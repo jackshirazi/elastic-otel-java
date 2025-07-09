@@ -121,7 +121,8 @@ public class CentralConfig {
                   new SendTraces(),
                   new DeactivateAllInstrumentations(),
                   new DeactivateInstrumentations(),
-                  new LoggingLevel())
+                  new LoggingLevel(),
+                  new TraceSamplingRatio())
               .collect(Collectors.toMap(ConfigOption::getConfigName, option -> option));
     }
 
@@ -279,6 +280,17 @@ public class CentralConfig {
     @Override
     void update(String configurationValue) throws IllegalArgumentException {
       AgentLog.setLevel(configurationValue);
+    }
+  }
+
+  public static final class TraceSamplingRatio extends ConfigOption {
+    TraceSamplingRatio() {
+      super("sample_ratio", "1.0");
+    }
+
+    @Override
+    void update(String configurationValue) throws IllegalArgumentException {
+      DynamicConfiguration.setSamplerRatio(Double.parseDouble(configurationValue));
     }
   }
 }
