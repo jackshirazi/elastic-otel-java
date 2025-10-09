@@ -16,6 +16,7 @@ publishingConventions {
 }
 
 dependencies {
+  javaagentExtensions(project(":configlogging"))
   upstreamAgent(platform(catalog.opentelemetryInstrumentationAlphaBom))
   upstreamAgent("io.opentelemetry.javaagent:opentelemetry-javaagent")
 }

@@ -27,6 +27,10 @@ val javaagentLibs: Configuration by configurations.creating {
   isCanBeConsumed = false
   isCanBeResolved = false
 }
+val javaagentExtensions: Configuration by configurations.creating {
+  isCanBeConsumed = false
+  isCanBeResolved = true
+}
 val upstreamAgent: Configuration by configurations.creating {
   isCanBeConsumed = false
   isCanBeResolved = false
@@ -207,6 +211,10 @@ tasks {
     exclude("inst/io/opentelemetry/javaagent/slf4j/simple/**")
 
     from(isolateJavaagentLibs)
+
+    from(javaagentExtensions) {
+      into("extensions")
+    }
 
     archiveClassifier.set("")
 
